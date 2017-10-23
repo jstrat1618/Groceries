@@ -138,10 +138,11 @@ print('These are the current options:')
 print('Option 1: Insert recipe, serving size and instructions')
 print('Option 2: Insert ingredients for an existing recipe')
 print('Option 3: Insert recipe, serving size, instructions and ingredients')
+print('Option 4: Get grocery list given csv file')
 
 opt =  input('Please input the appropriate option 1,2, or 3? ')
 opt = opt.replace(' ', '')
-while opt not in ['1', '2', '3']:
+while opt not in ['1', '2', '3', '4']:
     print("Sorry invalid option")
     print("Make sure you input 1, 2 or 3 ")
     opt =  input('Please input the appropriate option 1,2, or 3? ')
@@ -155,9 +156,10 @@ if opt == 1:
     insert_recipe(rname)
 elif opt == 2:
     insert_ingredients(rname)
-else:
+elif opt == 3:
     insert_recipe(rname)
     insert_ingredients(rname)
-
+else:
+    get_grocery_list()
 
 print('Done!')    
