@@ -23,10 +23,11 @@ instructions VARCHAR(15000)
 CREATE TABLE ingredients(
 ingredient_id SERIAL PRIMARY KEY,
 recipe_id INTEGER REFERENCES recipes (recipe_id),
-ingredient_name VARCHAR(300)
+ingredient_name VARCHAR(300) NOT NULL
     CHECK(ingredient_name = LOWER(ingredient_name)),
 amount REAL,
 unit VARCHAR(30)
     CHECK( (unit LIKE '%s' OR unit = 'whole') AND unit = LOWER(unit)),
+is_optional BOOL DEFAULT FALSE,    
 note VARCHAR(50)
 );
