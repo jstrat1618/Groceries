@@ -32,7 +32,7 @@ def get_recipe_categories():
     return(cat_dict)
 
 
-def insert_recipe(rname, selected_cat, serv_size, instructions):
+def insert_recipe(rname, selected_cat, serv_size, meal_time, instructions = ''):
     cat_dict = get_recipe_categories()
     
     print("AVAILABLE CATEGORIES")
@@ -50,7 +50,7 @@ def insert_recipe(rname, selected_cat, serv_size, instructions):
     
     
     cat_id = cat_dict[selected_cat]
-    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, instructions) VALUES(%s, %s, %s, %s);", (cat_id,rname, serv_size, instructions))
+    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id,rname, serv_size, instructions))
     con.commit()
 
 def get_grocery_list(recp_file):
@@ -86,3 +86,35 @@ def get_grocery_list(recp_file):
     out_df = qdf.groupby(['ingredient_name', 'unit']).agg({'new_amt':'sum'})
     return(out_df)
 
+def get_recipes():
+    #Returns a dictionary with the names as the key and id_nums as values
+
+    #Query categories table
+    cur.execute('SELECT recipe_id, recipe_name FROM recipes;')
+    rep_query = cur.fetchall()
+    
+    rep_dict = {}
+    for rep in rep_query:
+        id_num , lab = rep
+        rep_dict[lab] = id_num
+    return(rep_dict)
+
+
+def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, instructions=''):
+    
+    rname = rname.lower()
+    
+    insert_recipe(rname, selected_cat, serv_size, meal_time)
+    
+    df = pd.read_csv(ing_file)    
+    
+    my_reps = get_recipes()
+    rep_id = my_reps[rname]
+    
+    for index, row in df.iterrows():
+        ing_amt, ing_name, ing_unit = row
+        cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
+        con.commit()
+
+#insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
+    
