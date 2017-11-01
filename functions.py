@@ -50,7 +50,7 @@ def insert_recipe(rname, selected_cat, serv_size, meal_time, instructions = ''):
     
     
     cat_id = cat_dict[selected_cat]
-    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id,rname, serv_size, instructions))
+    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id,rname, serv_size, meal_time, instructions))
     con.commit()
 
 def get_grocery_list(recp_file):
@@ -117,4 +117,7 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
         con.commit()
 
 #insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
-    
+file = 'C:/Users/JustinandAbigail/Google Drive/recipes/baked_chimichangas.csv'
+inst = 'Preheat oven to 400F. Whisk soy sauce, lemon juice & spices together. Add chickpeas and toss until well and evenly coated. Place chickpeas on a parchment paper-lined baking sheet, and bake 20-25 minutes, until crunchy. Remove from oven and let cool. Increase temperature to 425F. Mash chickpeas with a fork until there are no whole beans left. Spread refried beans in the middle of each tortilla. Spread guacamole on top of the beans. Add mashed chickpeas. Roll into a burrito and place on baking sheet. Bake for 15-20 minutes until the tortillas are browned and crispy. Serve warm and top with salsa and hot sauce, if desired.'
+
+insert_recipe_via_csv(file, 'baked chimichangas', 'southwestern', 4, 'lunch', inst)
