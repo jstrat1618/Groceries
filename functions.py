@@ -113,6 +113,9 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
     
     for index, row in df.iterrows():
         ing_amt, ing_name, ing_unit = row
+        #Eliminate trailing spaces
+        ing_name = ing_name.rstrip()
+        ing_unit = ing_unit.rstrip()
         cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
         con.commit()
 
