@@ -50,7 +50,7 @@ def insert_recipe(rname, selected_cat, serv_size, meal_time, instructions = ''):
     
     
     cat_id = cat_dict[selected_cat]
-    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id,rname, serv_size, meal_time, instructions))
+    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id, rname, serv_size, meal_time, instructions))
     con.commit()
 
 def get_grocery_list(recp_file):
@@ -103,24 +103,60 @@ def get_recipes():
 def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, instructions=''):
     
     rname = rname.lower()
+    selected_cat = selected_cat.lower()
+    meal_time = meal_time.lower()
     
-    insert_recipe(rname, selected_cat, serv_size, meal_time)
+    try:
+        meal_check = meal_time in ['breakfast', 'lunch', 'dinner', 'lunch or dinner', 'any', 'snack']
+        assert meal_check
+    except Exception as err1:
+        print("meal time should be  'breakfast', 'lunch', 'dinner', 'lunch or dinner', 'any', or 'snack'")
+        
+    df = pd.read_csv(ing_file) 
+    #Check that we have at least the columns amount, name and unit
+    #We don't want someone to have an ingredient
+    try:
+        col_heads = list(df.columns[0:3])
+        col_check = ['amount', 'name', 'unit'] == col_heads
+        assert col_check
+    except Exception as err2:
+        print('Sorry, the first 3 columns should be named amount, name and unit' )
     
-    df = pd.read_csv(ing_file)    
+    try:
+        unit_checks=[]
+        for index, row in df.iterrows():
+            ing_amt, ing_name, ing_unit = row
+            #Eliminate leading and trailing spaces
+            ing_unit = ing_unit.rstrip()
+            ing_unit = ing_unit.lstrip()
+            unit_check = ing_unit in ['oz can', 'whole'] or ing_unit[-1] == 's'
+            unit_checks.append(unit_check)
+            assert unit_check
+    except Exception as err2:
+        print(ing_unit +' must be either "whole", "oz can" or end in "s"')
+            
+    if meal_check & col_check & all(unit_checks):
+        
+        insert_recipe(rname, selected_cat, serv_size, meal_time, instructions)
+        my_reps = get_recipes()
+        rep_id = my_reps[rname]
+        
+        for index, row in df.iterrows():
+            ing_amt, ing_name, ing_unit = row
+            #Eliminate leading and trailing spaces
+            ing_name = ing_name.rstrip()
+            ing_name = ing_name.lstrip()
+            ing_name = ing_name.lower()
+            ing_unit = ing_unit.rstrip()
+            ing_unit = ing_unit.lstrip()
+            ing_unit = ing_unit.lower()
+            cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
+            con.commit()
     
-    my_reps = get_recipes()
-    rep_id = my_reps[rname]
-    
-    for index, row in df.iterrows():
-        ing_amt, ing_name, ing_unit = row
-        #Eliminate trailing spaces
-        ing_name = ing_name.rstrip()
-        ing_unit = ing_unit.rstrip()
-        cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
-        con.commit()
-
+    else:
+        print("Sorry, there was an exception")
 #insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
-file = 'C:/Users/JustinandAbigail/Google Drive/recipes/baked_chimichangas.csv'
-inst = 'Preheat oven to 400F. Whisk soy sauce, lemon juice & spices together. Add chickpeas and toss until well and evenly coated. Place chickpeas on a parchment paper-lined baking sheet, and bake 20-25 minutes, until crunchy. Remove from oven and let cool. Increase temperature to 425F. Mash chickpeas with a fork until there are no whole beans left. Spread refried beans in the middle of each tortilla. Spread guacamole on top of the beans. Add mashed chickpeas. Roll into a burrito and place on baking sheet. Bake for 15-20 minutes until the tortillas are browned and crispy. Serve warm and top with salsa and hot sauce, if desired.'
+file = 'C:/Users/JustinandAbigail/Google Drive/recipes/Buffalo Ranch Sliders.csv'
+inst = "" 
 
-insert_recipe_via_csv(file, 'baked chimichangas', 'southwestern', 4, 'lunch', inst)
+insert_recipe_via_csv(file, 'Buffalo Ranch Sliders', 'barbeque', 4, 'dinner', inst)
