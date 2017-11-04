@@ -7,6 +7,7 @@ Created on Tue Oct 10 15:12:50 2017
 
 import psycopg2 as pg2
 import pandas as pd
+from random import sample
 
 pwd_file = open('C:/Users/JustinandAbigail/Desktop/Temp/dum_file.txt')
 my_pwd = pwd_file.readlines()
@@ -55,7 +56,6 @@ def insert_recipe(rname, selected_cat, serv_size, meal_time, instructions = ''):
 
 def get_grocery_list(recp_file):
     
-    # Query the recipe database and obtain a data frame, qrdf
     rdf = pd.read_csv(recp_file)
     recps_list = rdf['recipe'].values
     serv_list = rdf['servings'].values
@@ -182,6 +182,25 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
         print("Sorry, there was an exception")
         print("The following caused problems")
         print(unit)
+
+def get_lunches(num_lunch = 3):
+    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time LIKE '%lunch%' ")
+    all_lunches = cur.fetchall()
+    lunch_list = sample(all_lunches, num_lunch)
+    
+    rnames = []
+    servings = [4] * num_lunch
+    for lunch in lunch_list:
+        lunch_id, rname = lunch
+        rnames.append(rname)
+    
+    df = pd.DataFrame({'recipe':rnames, 'servings':servings})
+    return(df)
+    
+   
+    
+#def create_weekly_meal_plan(num_lunch = 3, num_dinner =2):
+    
         
 #insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
 file = "C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
@@ -189,3 +208,6 @@ inst = ""
 
 insert_recipe_via_csv(file, "Carrot Hot Dogs", 'traditional', 4, 'dinner', inst)
 
+rfile = 'C:/Users/JustinandAbigail/Google Drive/recipes/simple_grocery_list.csv'
+glist = get_grocery_list(rfile)
+glist.to_csv('C:/Users/JustinandAbigail/Desktop/GroceryListNov4th.csv')
