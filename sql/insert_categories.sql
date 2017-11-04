@@ -8,4 +8,5 @@ VALUES
 ('quick and easy'),
 ('asian'),
 ('american'),
-('italian');	
+('italian')
+('caribbean');	
