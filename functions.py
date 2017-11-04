@@ -99,6 +99,40 @@ def get_recipes():
         rep_dict[lab] = id_num
     return(rep_dict)
 
+'''
+Return a tuple based on the two conditions below
+1.) If all the elements in unit will pass the checks for the database
+    returns a tuple with the first element being True, and the 2nd element
+    being the cleaned numpy array. The cleaned numpy array will
+2.) If one or more of the elements of the numpy array do not pass will return 
+    a tuple with False as the first element and the elementw that were
+    improperly formated
+'''
+def clean_unit(unit):
+    unit = unit.str.lower()
+    unit = unit.replace(['tsp', 'tsps', 'teaspoon'], 'teaspoons')
+    unit = unit.replace(['tbsp', 'tbsps', 'tablespoon'], 'tablespoons')
+    unit = unit.replace('cup', 'cups')
+    unit = unit.replace(['ounce', 'oz', 'ozs'], 'ounces')
+    unit = unit.replace('pint', 'pints')
+    unit = unit.replace('pinch', 'pinches')
+    unit = unit.replace(['pound','lbs'], 'pounds')
+    unit = unit.replace('gram', 'grams')
+    unit = unit.replace('quart', 'quarts')
+    
+    pass_check = []
+    for _ in unit:
+        p_or_f = _ in ['oz can', 'whole'] or _[-1] =='s'
+        pass_check.append(p_or_f)
+    
+    pass_all = all(pass_check)
+    
+    if pass_all:
+        return( (pass_all, unit) )
+    else:
+        bad = unit[[not p for p in pass_check]]
+        return( (pass_all, bad) )
+    
 
 def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, instructions=''):
     
@@ -122,25 +156,16 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
     except Exception as err2:
         print('Sorry, the first 3 columns should be named amount, name and unit' )
     
-    try:
-        unit_checks=[]
-        for index, row in df.iterrows():
-            ing_amt, ing_name, ing_unit = row
-            #Eliminate leading and trailing spaces
-            ing_unit = ing_unit.rstrip()
-            ing_unit = ing_unit.lstrip()
-            unit_check = ing_unit in ['oz can', 'whole'] or ing_unit[-1] == 's'
-            unit_checks.append(unit_check)
-            assert unit_check
-    except Exception as err2:
-        print(ing_unit +' must be either "whole", "oz can" or end in "s"')
-            
-    if meal_check & col_check & all(unit_checks):
+    pass_unit,unit = clean_unit(df.unit)
+    
+    if meal_check & col_check & pass_unit:
+        
+        df.unit = unit
         
         insert_recipe(rname, selected_cat, serv_size, meal_time, instructions)
+        
         my_reps = get_recipes()
         rep_id = my_reps[rname]
-        
         for index, row in df.iterrows():
             ing_amt, ing_name, ing_unit = row
             #Eliminate leading and trailing spaces
@@ -155,8 +180,12 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
     
     else:
         print("Sorry, there was an exception")
+        print("The following caused problems")
+        print(unit)
+        
 #insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
-file = 'C:/Users/JustinandAbigail/Google Drive/recipes/Buffalo Ranch Sliders.csv'
+file = "C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
 inst = "" 
 
-insert_recipe_via_csv(file, 'Buffalo Ranch Sliders', 'barbeque', 4, 'dinner', inst)
+insert_recipe_via_csv(file, "Carrot Hot Dogs", 'traditional', 4, 'dinner', inst)
+
