@@ -198,6 +198,20 @@ def get_lunches(num_lunch = 3):
     return(df)
     
    
+def get_dinners(num_dinner = 2):
+    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time LIKE '%lunch%' ")
+    all_lunches = cur.fetchall()
+    dinner_list = sample(all_lunches, num_dinner)
+    
+    rnames = []
+    servings = [4] * num_dinner
+    for dinner in dinner_list:
+        dinner_id, rname = dinner
+        rnames.append(rname)
+    
+    df = pd.DataFrame({'recipe':rnames, 'servings':servings})
+    return(df)
+    
     
 #def create_weekly_meal_plan(num_lunch = 3, num_dinner =2):
     
