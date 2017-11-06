@@ -7,7 +7,6 @@ Created on Tue Oct 10 15:12:50 2017
 
 import psycopg2 as pg2
 import pandas as pd
-import re
 from random import sample
 
 pwd_file = open('C:/Users/JustinandAbigail/Desktop/Temp/dum_file.txt')
@@ -37,24 +36,26 @@ def get_recipe_categories():
 def insert_recipe(rname, selected_cat, serv_size, meal_time, instructions = ''):
     cat_dict = get_recipe_categories()
     
-    print("AVAILABLE CATEGORIES")
     all_cats = cat_dict.keys()
-    for cat in all_cats:
-        print(cat)
     
-    while selected_cat not in all_cats:
-        print("Sorry, pleases select from the available categories")
-        print("AVAILABLE CATEGORIES")
-        for cat in all_cats:
-            print(cat)
-        selected_cat = input('Please input a category from the available categories ')
-        selected_cat = selected_cat.lower()
+    try:
+        assert selected_cat in all_cats
+        cat_id = cat_dict[selected_cat]
+        cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id, rname, serv_size, meal_time, instructions))
+        con.commit()
     
-    
-    cat_id = cat_dict[selected_cat]
-    cur.execute("INSERT INTO recipes(category_id, recipe_name, serving_size, meal_time, instructions) VALUES(%s, %s, %s, %s, %s);", (cat_id, rname, serv_size, meal_time, instructions))
-    con.commit()
+    except Exception as err:
+        print(err)
+     
 
+def clean_string(mystring):
+    mystring = mystring.lower()
+    mystring = mystring.rstrip()
+    mystring = mystring.lstrip()
+    return(mystring)
+    
+    
+    
 def get_grocery_list(recp_file):
     
     rdf = pd.read_csv(recp_file)
@@ -101,6 +102,7 @@ def get_recipes():
     return(rep_dict)
 
 '''
+Input: Takes a pandas column
 Return a tuple based on the two conditions below
 1.) If all the elements in unit will pass the checks for the database
     returns a tuple with the first element being True, and the 2nd element
@@ -111,6 +113,8 @@ Return a tuple based on the two conditions below
 '''
 def clean_unit(unit):
     unit = unit.str.lower()
+    unit = unit.apply(clean_string)
+    
     unit = unit.replace(['tsp', 'tsps', 'teaspoon'], 'teaspoons')
     unit = unit.replace(['tbsp', 'tbsps', 'tablespoon'], 'tablespoons')
     unit = unit.replace('cup', 'cups')
@@ -221,13 +225,44 @@ def get_dinners(num_dinner = 2):
     df = pd.DataFrame({'recipe':rnames, 'servings':servings})
     return(df)
 
-            
-        
-file="C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
+
+def add_multiple_recipes(file_of_recipes):
+    df = pd.read_csv(file_of_recipes)
+    essential_args = ["ing_file", "rname", "selected_cat", "serv_size", "meal_time"]
+    
+    not_uploaded = []
+
+    try: 
+        assert set(essential_args) <= set(list(df.columns))
+        for index, row in df.iterrows():
+            ing_file, rname, selected_cat, serv_size, meal_time = row
+            upload = insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time)
+            if not upload:
+                not_uploaded.append(rname)
+                  
+    except Exception as err:
+        print("Sorry, There was an exception")
+        print("Check that the variables are named correctly")
+        print("The current names are: ")
+        for arg in list(df.columns):
+            print(arg)
+    
+    if len(not_uploaded)>0:
+        print("The following were not uploaded: ")
+        for rep in not_uploaded:
+            print(rep)
+   
+    
+ 
+file="C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/Black_Eyed_Pea_Tacos.csv"
 inst = "" 
 
-insert_recipe_via_csv(file, "Carrot Hot Dogs", 'traditional', 4, 'dinner', inst)
+insert_recipe_via_csv(file, "Black Eyed Pea Tacos", 'southwestern', 1, 'dinner', inst)
 
 rfile = 'C:/Users/JustinandAbigail/Google Drive/recipes/simple_grocery_list.csv'
 glist = get_grocery_list(rfile)
 glist.to_csv('C:/Users/JustinandAbigail/Desktop/GroceryListNov4th.csv')
+
+
+add_multiple_recipes('C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes_2_upload.csv')
+'''
