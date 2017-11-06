@@ -59,6 +59,8 @@ def get_grocery_list(df, recp_file=None):
     qdf = qdf.assign(new_amt = qdf.amount * qdf.servings_requested / qdf.serving_size)
     
     out_df = qdf.groupby(['ingredient_name', 'unit']).agg({'new_amt':'sum'})
+    out_df = out_df.rename(columns={"new_amt":"amount"})
+    
     return(out_df)
 
 
