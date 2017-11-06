@@ -18,11 +18,20 @@ con = pg2.connect(database = 'recipes', user = 'postgres',
 cur = con.cursor()
 
 
+'''
+Input: Can take a csv file with columns recipe and servings
+Or can take a pandas data frame with columns recipe and servings, such
+as the data frame outputed by get_lunches, get_dinners or get_weekly_meal_plan
 
+Outputs a grocery list in a pandas data frame 
+'''
     
-def get_grocery_list(recp_file):
+def get_grocery_list(df, recp_file=None):
     
-    rdf = pd.read_csv(recp_file)
+    if recp_file:
+        rdf = pd.read_csv(recp_file)
+    else:
+        rdf = df
     recps_list = rdf['recipe'].values
     serv_list = rdf['servings'].values
     
