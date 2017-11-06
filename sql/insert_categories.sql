@@ -9,4 +9,5 @@ VALUES
 ('asian'),
 ('american'),
 ('italian'),
-('caribbean');	
+('caribbean'),
+('cajun');	
