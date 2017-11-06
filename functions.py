@@ -225,6 +225,22 @@ def get_dinners(num_dinner = 2):
     df = pd.DataFrame({'recipe':rnames, 'servings':servings})
     return(df)
 
+'''
+If grocery_list is True returns a tuple where the first element is the full meal plan
+and the second element is the grocery list
+Otherwise: returns the full meal plan in a pd DataFrame that can be
+modified and written to.
+'''
+def get_weekly_meal_plan(num_lunch=3 , num_dinner=2, grocery_list= True):
+    lunches = get_lunches(num_lunch)
+    dinners = get_dinners(num_dinner)
+    full_plan = lunches.append(dinners)
+    if grocery_list:
+        glist = get_grocery_list(full_plan)
+        return( (full_plan,  glist) )
+    else:
+        return(full_plan)
+        
 
 def add_multiple_recipes(file_of_recipes):
     df = pd.read_csv(file_of_recipes)
@@ -253,7 +269,7 @@ def add_multiple_recipes(file_of_recipes):
             print(rep)
    
     
- 
+''' 
 file="C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/Black_Eyed_Pea_Tacos.csv"
 inst = "" 
 
@@ -262,7 +278,6 @@ insert_recipe_via_csv(file, "Black Eyed Pea Tacos", 'southwestern', 1, 'dinner',
 rfile = 'C:/Users/JustinandAbigail/Google Drive/recipes/simple_grocery_list.csv'
 glist = get_grocery_list(rfile)
 glist.to_csv('C:/Users/JustinandAbigail/Desktop/GroceryListNov4th.csv')
-
 
 add_multiple_recipes('C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes_2_upload.csv')
 '''
