@@ -133,7 +133,11 @@ def clean_unit(unit):
     else:
         bad = unit[[not p for p in pass_check]]
         return( (pass_all, bad) )
-    
+
+'''
+Should return True if the recipe was successfully uploaded to the database
+Otherwise return False.
+'''    
 
 def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, instructions=''):
     
@@ -178,12 +182,15 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
             ing_unit = ing_unit.lower()
             cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
             con.commit()
+         
+        return(True)
             
     
     else:
         print("Sorry, there was an exception")
         print("The following caused problems")
         print(unit)
+        return(False)
 
 def get_lunches(num_lunch = 3):
     cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time LIKE '%lunch%' ")
@@ -214,23 +221,6 @@ def get_dinners(num_dinner = 2):
     df = pd.DataFrame({'recipe':rnames, 'servings':servings})
     return(df)
 
-def add_multiple_recipes(file_of_recipes):
-    df = pd.read_csv(file_of_recipes)
-    essential_args = ["ing_file", "rname", "selected_cat", "serv_size", "meal_time"]
-    
-    try: 
-        assert set(essential_args) <= set(list(df.columns))
-        for index, row in df.iterrows():
-            ing_file, rname, selected_cat, serv_size, meal_time = row
-            insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time)
-    
-    except Exception as err:
-        print("Sorry, There was an exception")
-        print("Check that the variables are named correctly")
-        print("The current names are: ")
-        for arg in list(df.columns):
-            print(arg)
-    
             
         
 file="C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
