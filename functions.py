@@ -7,6 +7,7 @@ Created on Tue Oct 10 15:12:50 2017
 
 import psycopg2 as pg2
 import pandas as pd
+import re
 from random import sample
 
 pwd_file = open('C:/Users/JustinandAbigail/Desktop/Temp/dum_file.txt')
@@ -122,7 +123,7 @@ def clean_unit(unit):
     
     pass_check = []
     for _ in unit:
-        p_or_f = _ in ['oz can', 'whole'] or _[-1] =='s'
+        p_or_f = _ =='whole' or _[-1] =='s' or _.endswith('oz can')
         pass_check.append(p_or_f)
     
     pass_all = all(pass_check)
@@ -177,6 +178,7 @@ def insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time, i
             ing_unit = ing_unit.lower()
             cur.execute("INSERT INTO ingredients(recipe_id, ingredient_name, unit, amount) VALUES(%s, %s, %s, %s);", (rep_id,ing_name, ing_unit, ing_amt))
             con.commit()
+            
     
     else:
         print("Sorry, there was an exception")
@@ -211,13 +213,27 @@ def get_dinners(num_dinner = 2):
     
     df = pd.DataFrame({'recipe':rnames, 'servings':servings})
     return(df)
+
+def add_multiple_recipes(file_of_recipes):
+    df = pd.read_csv(file_of_recipes)
+    essential_args = ["ing_file", "rname", "selected_cat", "serv_size", "meal_time"]
     
+    try: 
+        assert set(essential_args) <= set(list(df.columns))
+        for index, row in df.iterrows():
+            ing_file, rname, selected_cat, serv_size, meal_time = row
+            insert_recipe_via_csv(ing_file, rname, selected_cat, serv_size, meal_time)
     
-#def create_weekly_meal_plan(num_lunch = 3, num_dinner =2):
+    except Exception as err:
+        print("Sorry, There was an exception")
+        print("Check that the variables are named correctly")
+        print("The current names are: ")
+        for arg in list(df.columns):
+            print(arg)
     
+            
         
-#insert_recipe_via_csv(ing_file = 'C:/Users/JustinandAbigail/Desktop/Fun_Projects/Groceries/recipes/pb toast.csv', rname='pb toast', selected_cat = 'quick and easy', serv_size=1, meal_time='breakfast')        
-file = "C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
+file="C:/Users/JustinandAbigail/Google Drive/recipes/Carrot Hot Dogs.csv"
 inst = "" 
 
 insert_recipe_via_csv(file, "Carrot Hot Dogs", 'traditional', 4, 'dinner', inst)
