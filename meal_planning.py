@@ -48,20 +48,26 @@ def get_grocery_list(df, recp_file=None):
     
     qdf = pd.DataFrame(query, columns = ["recipe", "serving_size", "ingredient_name", "unit", "amount"] )
     
-
-    servs_for_qdf = []
-    for rep in range(len(qdf)):
-        lab = qdf['recipe'].values[rep]
-        servs_for_qdf.append(rdict[lab])
-    
-    qdf['servings_requested'] = servs_for_qdf
-    
-    qdf = qdf.assign(new_amt = qdf.amount * qdf.servings_requested / qdf.serving_size)
-    
-    out_df = qdf.groupby(['ingredient_name', 'unit']).agg({'new_amt':'sum'})
-    out_df = out_df.rename(columns={"new_amt":"amount"})
-    
-    return(out_df)
+    try:
+        assert set(rdf.recipe) <= set(qdf.recipe)    
+        servs_for_qdf = []
+        for rep in range(len(qdf)):
+            lab = qdf['recipe'].values[rep]
+            servs_for_qdf.append(rdict[lab])
+        
+        qdf['servings_requested'] = servs_for_qdf
+        
+        qdf = qdf.assign(new_amt = qdf.amount * qdf.servings_requested / qdf.serving_size)
+        
+        out_df = qdf.groupby(['ingredient_name', 'unit']).agg({'new_amt':'sum'})
+        out_df = out_df.rename(columns={"new_amt":"amount"})
+        
+        return(out_df)
+    except Exception as err:
+        print("Sorry, There was an exception")
+        diff = set(rdf.recipe) - set(qdf.recipe)
+        print("The following recipes were not found in the database:")
+        print(diff)
 
 
 def get_lunches(num_lunch = 3):
@@ -110,7 +116,12 @@ def get_weekly_meal_plan(num_lunch=3 , num_dinner=2, grocery_list= True):
         return(full_plan)
         
 '''
+Examples
 rfile = 'C:/Users/JustinandAbigail/Google Drive/recipes/simple_grocery_list.csv'
 glist = get_grocery_list(rfile)
 glist.to_csv('C:/Users/JustinandAbigail/Desktop/GroceryListNov4th.csv')
+
+recipes, glist = get_weekly_meal_plan()
+recipes.to_csv('C:/Users/JustinandAbigail/Desktop/ThisWeekRecipes.csv')
+glist.to_csv('C:/Users/JustinandAbigail/Desktop/ThisWeekGroceryList.csv')
 '''
