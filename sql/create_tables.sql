@@ -15,7 +15,7 @@ recipe_name VARCHAR(50) UNIQUE NOT NULL
     CHECK(recipe_name = LOWER(recipe_name)),
 serving_size INTEGER,
 meal_time VARCHAR(15)
-    CHECK(meal_time IN ('breakfast', 'lunch', 'dinner', 'lunch or dinner', 'any', 'snack')),    
+    CHECK(meal_time IN ('breakfast', 'lunch', 'dinner', 'any', 'snack')),    
 instructions VARCHAR(15000)
 );
 
