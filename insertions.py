@@ -94,7 +94,7 @@ def clean_unit(unit):
     
     pass_check = []
     for _ in unit:
-        p_or_f = _ =='whole' or _[-1] =='s' or _.endswith('oz can') or _.endswith('package')
+        p_or_f = _ =='whole' or _[-1] =='s' or _.endswith(('oz can','package','jar'))
         pass_check.append(p_or_f)
     
     pass_all = all(pass_check)

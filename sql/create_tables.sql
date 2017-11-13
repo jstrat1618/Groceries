@@ -27,7 +27,7 @@ ingredient_name VARCHAR(300) NOT NULL
     CHECK(ingredient_name = LOWER(ingredient_name)),
 amount REAL,
 unit VARCHAR(30)
-    CHECK( (unit LIKE '%s' OR unit LIKE '%oz can' OR unit ='whole' OR unit LIKE '%package') AND unit = LOWER(unit)),
+    CHECK( (unit LIKE '%s' OR unit LIKE '%oz can' OR unit ='whole' OR unit LIKE '%package' OR unit LIKE '%jar') AND unit = LOWER(unit)),
 is_optional BOOL DEFAULT FALSE,    
 note VARCHAR(50)
 );
