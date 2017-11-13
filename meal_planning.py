@@ -71,7 +71,7 @@ def get_grocery_list(df, recp_file=None):
 
 
 def get_lunches(num_lunch = 3):
-    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time LIKE '%lunch%' ")
+    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time = 'lunch' ")
     all_lunches = cur.fetchall()
     lunch_list = sample(all_lunches, num_lunch)
     
@@ -86,7 +86,7 @@ def get_lunches(num_lunch = 3):
     
    
 def get_dinners(num_dinner = 2):
-    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time LIKE '%lunch%' ")
+    cur.execute("SELECT recipe_id, recipe_name FROM recipes WHERE meal_time = 'dinner' ")
     all_lunches = cur.fetchall()
     dinner_list = sample(all_lunches, num_dinner)
     
